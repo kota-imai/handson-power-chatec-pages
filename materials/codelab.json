@@ -1,0 +1,24 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2021-11-20T07:44:19Z",
+  "id": "materials",
+  "duration": 36,
+  "title": "Power Automate × Stripe × LINEでチャットコマースを作ろう",
+  "authors": "Kota Imai",
+  "summary": "チャットコマースをコードを書かずに作るハンズオン！",
+  "source": "1TzL4ZiGkBazCVQz8dbFRffIPFJTHr2lkg2n2LFEFOLY",
+  "theme": "web",
+  "status": [
+    "draft"
+  ],
+  "category": [
+    "web"
+  ],
+  "tags": [],
+  "feedback": "https://twitter.com/kaonaga9",
+  "ga": "UA-52746336-1",
+  "url": "materials"
+}

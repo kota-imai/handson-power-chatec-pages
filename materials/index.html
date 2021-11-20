@@ -1,0 +1,242 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Power Automate × Stripe × LINEでチャットコマースを作ろう</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid="UA-52746336-1"
+                  id="materials"
+                  title="Power Automate × Stripe × LINEでチャットコマースを作ろう"
+                  environment="web"
+                  feedback-link="https://twitter.com/kaonaga9">
+    
+      <google-codelab-step label="はじめに" duration="0">
+        <h2 is-upgraded><strong>ご参加頂きありがとうございます！</strong></h2>
+<p>こちらはLINE Developers Communityで発表させて頂く内容の第二弾となります。よろしければ前回の 動画アーカイブもご覧ください！<a href="https://www.youtube.com/watch?v=oCNtm6KPH1M&ab_channel=LINEDeveloperCommunity" target="_blank">LIFFとStripe CheckoutでLINE上で使える決済画面を作ろうハンズオン - YouTube</a></p>
+<p>今回はMicrosoftの提供する Power Automate と Stripe Checkout を使用してLINEで使えるチャットECを作ってみました。コードは書きませんので、非エンジニアの方もお気軽に挑戦してみてください！</p>
+<p>完成イメージは <a href="https://line.me/R/ti/p/%40542xbwku" target="_blank">デモアカウント</a> をご覧ください。</p>
+<p>.</p>
+<h2 is-upgraded><strong>想定している参加者の方</strong></h2>
+<ul>
+<li>RPAやローコード／ノーコード開発に興味がある人</li>
+<li>Power Platformによる連携で何ができるか知りたい人</li>
+<li>チャットボットやLINEミニアプリの収益化を考えている人</li>
+<li>Stripeをビジネスで活用したい非エンジニア</li>
+</ul>
+<p>.</p>
+<h2 is-upgraded><strong>当日のご質問はこちら</strong></h2>
+<p>後日追記</p>
+<aside class="warning"><p>本記事は 2021/12/10現在 の情報をもとに作成しています。最新の情報は各サービスの公式ドキュメントをご参照ください。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="事前に必要なもの" duration="1">
+        <h2 is-upgraded><strong>ハンズオンの前にご用意ください</strong></h2>
+<ul>
+<li>Stripeのアカウント</li>
+<li>LINE Developersのアカウント</li>
+<li>Power Automateの無料試用版ライセンス or 有料ライセンス</li>
+<li>ブラウザとメモ帳（エディタなら何でもok）</li>
+</ul>
+<p>Power Automateは有料プラン用の機能を使用します。無料試用もあるのでこの機会にぜひ使ってみてください。<br><a href="https://powerautomate.microsoft.com/ja-jp/pricing/" target="_blank">Power Automateの料金プラン</a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="プロジェクトを用意" duration="1">
+        <h2 is-upgraded><strong>プロジェクト一式をダウンロード</strong></h2>
+<p><a href="https://github.com/kota-imai/handson-power-chatec/archive/refs/heads/main.zip" target="_blank"><paper-button class="colored" raised>ダウンロードする</paper-button></a></p>
+<aside class="warning"><p>私のGitHubからzipファイルがダウンロードされます。ウイルスではありません。ご安心を笑</p>
+</aside>
+<p>こんな感じでファイルが入っています。メモ用のテキストファイルが入ってますのでハンズオンの進行に合わせて編集してください。</p>
+<p class="image-container"><img style="width: 583.50px" src="img\\94e1df461b57efcf.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="LINEのチャネル作成" duration="4">
+        <h2 is-upgraded><strong>LINE Developersを開く</strong></h2>
+<p><a href="https://developers.line.biz/console/" target="_blank">LINE Developes</a></p>
+<p>.</p>
+<h2 is-upgraded><strong>Messaging APIのチャネルを作成</strong></h2>
+<p>まずは適切なプロバイダーにチャネルを作成していきます。Messaging APIを使用しますので Messaging API を選んでチャネルを作成してください。</p>
+<p>.</p>
+<h2 is-upgraded><strong>アクセストークンを取得</strong></h2>
+<p>チャネル作成後、Messaging APIのチャネルアクセストークンを記録します。先ほどメモ用のファイルに転記します。</p>
+<p>Webhookの設定は後ほど行いますので、ここでは空欄のままで大丈夫です。</p>
+<p class="image-container"><img style="width: 624.00px" src="img\\8576ab2a4465c62.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Stripeに商品を作成" duration="10">
+        <h2 is-upgraded><strong>Stripe のダッシュボードを開く</strong></h2>
+<p><a href="https://dashboard.stripe.com/dashboard" target="_blank">Stripe ダッシュボード</a></p>
+<p>.</p>
+<h2 is-upgraded><strong>テストモードに変更</strong></h2>
+<p>デモということでコンソール右上の「テスト環境」のトグルをオンにします。</p>
+<p class="image-container"><img style="width: 688.36px" src="img\\60e01304293e7e87.png"></p>
+<p>.</p>
+<h2 is-upgraded><strong>APIキーをメモ</strong></h2>
+<p>まずはStripeのAPIキーをメモします。<strong>開発者</strong> - <strong>APIキー</strong> を開きます。「テストキーを表示」をクリックするとシークレットキーが表示されますのでコピーしてメモファイルに転記します。</p>
+<p class="image-container"><img style="width: 668.81px" src="img\\df14e479464df032.jpeg"></p>
+<p>.</p>
+<h2 is-upgraded><strong>商品の作成</strong></h2>
+<p>続いて商品を作っていきます。チャットECで表示したい商品を3つほど作成します。</p>
+<p><strong>商品</strong> - <strong>商品を追加 </strong>から商品名、商品画像、料金を登録します。今回はECということで単発決済ですので、料金設定は「一括」を選択して下さい。</p>
+<p class="image-container"><img style="width: 707.78px" src="img\\e9ab4d67d359b054.png"></p>
+<p class="image-container"><img style="width: 376.46px" src="img\\137dd62240a19ffe.png"></p>
+<aside class="special"><p>Stripe CLIを使える方はCLIから作って頂いても構いません。楽なので個人的にはCLIがおすすめです👍</p>
+<p><a href="https://stripe.com/docs/billing/prices-guide" target="_blank">Manage products and prices | Stripe のドキュメント</a></p>
+</aside>
+<p>.</p>
+<h2 is-upgraded><strong>料金の API ID をメモ</strong></h2>
+<p>料金を作成すると各料金に対して ID が発行されます。商品を3つほど登録して価格IDをメモファイルに転記します。</p>
+<p class="image-container"><img style="width: 675.50px" src="img\\29cd95d3fed422df.png"></p>
+<p>後で使いますので下のような形式でメモしてください。</p>
+<pre><code>[
+  &#34;price_XXX&#34;,
+  &#34;price_YYY&#34;,
+  &#34;price_ZZZ&#34;
+]</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Power Automateフロー作成" duration="11">
+        <h2 is-upgraded><strong>Power Automate の管理画面を開く</strong></h2>
+<p><a href="https://japan.flow.microsoft.com/ja-jp/" target="_blank">Microsoft Power Automate | Microsoft Power Platform</a></p>
+<p>.</p>
+<h2 is-upgraded><strong>テンプレートをインポートする</strong></h2>
+<p>プロジェクトにテンプレート用のzipファイルが3つ入っていますので、ご自身のPower Automateの環境にこれらをインポートして下さい。インポートの詳しい手順は <a href="https://docs.microsoft.com/ja-jp/power-automate/import-flow-solution" target="_blank">ドキュメント</a> をご参照ください。</p>
+<p>それぞれインポートが完了したら前項までに作成したメモをもとに、フローを編集していきます。旗が立っている項目の編集が必要です。</p>
+<aside class="warning"><p>インポートしたプロジェクトを有効化できない場合は <strong>Power Automateの無料試用版への登録が必要</strong>です。適当にプレミアムコネクタを追加しようとすると、画像のような広告が表示されますので無料試用版の登録を行ってください。</p>
+<p class="image-container"><img style="width: 375.43px" src="img\\7e228d5047722be0.png"></p>
+</aside>
+<p>.</p>
+<h2 is-upgraded><strong>フロー1 Stripe Checkoutにリダイレクト</strong></h2>
+<p class="image-container"><img style="width: 624.00px" src="img\\26a280ad42d8f3cc.png"></p>
+<p>Checkoutページにリダイレクトするためのフローです。以下の項目を設定します。</p>
+<ul>
+<li>Stripe シークレットキー</li>
+<li>成功時URL ... Stripeの決済が成功したときにリダイレクトされるURLです</li>
+<li>失敗時URL ... Stripeの決済が失敗したときにリダイレクトされるURLです</li>
+</ul>
+<p>編集が終わったら <strong>保存 </strong>を押します。</p>
+<aside class="special"><p>成功時／失敗時URLには仮のページを設定しておりますのでそのままでもokです。必要に迫られたときに変更してください。</p>
+</aside>
+<aside class="special"><p>フロー1の受信URLは後ほど フロー3 で使います。受信URLをメモしておきましょう。</p>
+<p class="image-container"><img style="width: 469.32px" src="img\\826b31f740d425a8.png"></p>
+</aside>
+<p>.</p>
+<h2 is-upgraded><strong>フロー2 Stripe Webhookハンドラー</strong></h2>
+<p class="image-container"><img style="width: 624.00px" src="img\\bf7c08fa193be9a9.png"></p>
+<p>StripeからWebhookを受け取って、ごにょごにょするためのフローです。以下の項目を設定します。</p>
+<ul>
+<li>LINE アクセストークン</li>
+<li>Stripe シークレットアクセスキー</li>
+<li>価格IDリスト ... Stripeの料金ID一覧。配列型の変数なので↓のような形式で設定します</li>
+</ul>
+<pre><code>[
+  &#34;price_XXX&#34;,
+  &#34;price_YYY&#34;,
+  &#34;price_ZZZ&#34;
+]</code></pre>
+<p>編集が終わったら <strong>保存</strong> を押します。</p>
+<p>.</p>
+<h2 is-upgraded><strong>フロー3 LINE Webhook ハンドラー</strong></h2>
+<p class="image-container"><img style="width: 624.00px" src="img\\a929f5b57158934d.png"></p>
+<p>LINEからWebhookを受け取ってメッセージを返すためのフローです。以下の項目を設定します。</p>
+<ul>
+<li>LINE アクセストークン</li>
+<li>アプリURL ... フロー1の受信URLを設定します</li>
+<li>価格IDリスト ... Stripeの料金ID一覧。</li>
+<li>カルーセルメッセージ ... JSONフォーマットのオブジェクトを設定します</li>
+</ul>
+<aside class="special"><p>カルーセルメッセージには、同封の <code>flexmessage.json</code> ファイルの中身を入力してください。<strong>商品名や商品画像URL、価格を変更する必要があります。</strong></p>
+<ul>
+<li>商品１ → 12行目(画像URL)、21行目(商品名)、32行目(価格)</li>
+<li>商品２ → 68行目(画像URL)、77行目(商品名)、89行目(価格)</li>
+<li>商品３ → 126行目(画像URL)、135行目(商品名)、147行目(価格)</li>
+</ul>
+</aside>
+<aside class="special"><p>中身を編集する際は、<a href="https://developers.line.biz/flex-simulator/" target="_blank">Flex Message Simulator</a> が便利です。</p>
+</aside>
+<p>編集が終わったら <strong>保存</strong> を押します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="LINEのWebhookを設定" duration="3">
+        <p>自動でメッセージを返信できるよう<a href="https://developers.line.biz/console/" target="_blank">LINE Developers</a>のコンソールからWebhookの設定を行います。</p>
+<p><strong>Messaging API</strong> - <strong>Webhookの利用 </strong>をオンに変更し、<strong>Webhook URL </strong>の欄には「LINE Webhookハンドラー」の受信URLを設定してください。</p>
+<p class="image-container"><img style="width: 695.50px" src="img\\e66f114a6f17dec3.png"></p>
+<p>これでボットの作成が完了しました。作成したアカウントに対して「買い物をする」とメッセージを送ると返事が返ってくるはずです。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="StripeのWebhookを設定" duration="3">
+        <p>最後のステップです。StripeにWebhookを設定してLINEと連携ができるようにします。</p>
+<p><a href="https://dashboard.stripe.com/dashboard" target="_blank">Stripeのダッシュボード</a> から<strong> 開発者</strong> - <strong>Webhook</strong> - <strong>エンドポイントを追加 </strong>を開きます。</p>
+<p>エンドポイントURLに「Stripe Webhookハンドラー」の受信URLを設定し、リッスンするイベントには <strong>checkout.session.completed</strong> を選択します。</p>
+<p class="image-container"><img style="width: 659.50px" src="img\\4af4e217c68a3c67.png"></p>
+<aside class="special"><p><strong>checkout.session.completed </strong>...Checkoutセッションの支払いが成功したときに発火されるイベントです。<a href="https://stripe.com/docs/api/events/types" target="_blank">Stripe API reference – Types of events</a></p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="完成！使ってみよう！" duration="3">
+        <h2 is-upgraded><strong>テスト決済してみよう</strong></h2>
+<p>お疲れ様でした。以上でアプリの作成は完了です。実際に決済してみましょう。</p>
+<p>Stripeはテストカード  <code>4242-4242-4242-4242</code> で決済を試すことができます。住所などはひとまず適当でokです。決済後に↓のようなメッセージが届けば成功です。</p>
+<p class="image-container"><img style="width: 269.22px" src="img\\40d6273ff525758d.png"></p>
+<aside class="special"><p><strong>テスト決済できるカード番号一覧</strong></p>
+<p><a href="https://stripe.com/docs/testing#cards" target="_blank">組み込みをテストする | Stripe のドキュメント</a></p>
+</aside>
+<p>.</p>
+<h2 is-upgraded><strong>Stripe の決済履歴を確認</strong></h2>
+<p><a href="https://dashboard.stripe.com/dashboard" target="_blank">Stripeのダッシュボード</a> にも決済の履歴が残っているかと思います。<strong>支払い - すべての支払い </strong>から確認できます。</p>
+<p class="image-container"><img style="width: 624.00px" src="img\\98ceb29440c1b98f.png"></p>
+<p>.</p>
+<h2 is-upgraded><strong>おわりに</strong></h2>
+<p>ハンズオンお疲れ様でした。Power Automate x Stripe x LINE の掛け合わせのパワフルさを実感頂けたのではないでしょうか。特に<strong>Power Automate は有料ライセンスにすると外部APIの連携が可能</strong>になり、LINE、Stripe のみならず様々なサービスと組み合わせることができます。ぜひ色々と触ってみてください！</p>
+<p>本ハンズオンに関して、ご不明点などありましたら <a href="https://twitter.com/kaonaga9" target="_blank">Twitter </a>へDM下さい。最後までお付き合い頂きありがとうございました！</p>
+<p class="image-container"><img style="width: 140.50px" src="img\\55204c16c6e5e464.png"></p>
+<aside class="special"><p><strong>GitHubリポジトリにもイイねをお願いします！</strong>私のモチベーションにつながります^^</p>
+<p><a href="https://github.com/kota-imai/handson-power-chatec" target="_blank">kota-imai/handson-power-chatec (github.com)</a></p>
+</aside>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
