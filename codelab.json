@@ -3,7 +3,7 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2021-11-20T09:08:39Z",
+  "updated": "2021-11-20T23:41:50Z",
   "id": "materials",
   "duration": 36,
   "title": "Power Automate × Stripe × LINEでチャットコマースを作ろう",
@@ -19,6 +19,5 @@
   ],
   "tags": [],
   "feedback": "https://twitter.com/kaonaga9",
-  "ga": "UA-52746336-1",
   "url": "materials"
 }
